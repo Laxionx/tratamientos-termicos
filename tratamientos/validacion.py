@@ -99,3 +99,26 @@ class Tolerances:
 
 
 TOLERANCES = Tolerances()
+
+
+# ---------------------------------------------------------------------------- fase 2: temple
+# French y Klopsch (1925), «Initial temperature and mass effects in quenching», Technologic Papers
+# of the Bureau of Standards 19, T295 (NBS, hoy NIST; dominio público), Tablas 1 y 2. Esferas de
+# acero de rodamiento (0,98 % C, 1,63 % Cr) templadas desde 875 °C en agua o aceite N.º 2 quietos
+# a 20 °C; velocidad de enfriamiento en el centro al pasar por 720 °C, medida con termocupla. El
+# diámetro sale del volumen tabulado, que es más preciso que la fracción de pulgada impresa.
+NBS = "French y Klopsch (1925), NBS Technologic Paper T295, dominio público"
+NBS_VOLUME_IN3 = (0.222, 0.523, 1.326, 2.186, 3.450, 6.790, 11.110)
+NBS_RATE = {  # °C/s en el centro a 720 °C, por esfera (None: no medida)
+    "agua": (148.5, 95.0, 55.0, 39.0, 28.0, 20.0, 14.0),
+    "aceite": (60.0, 43.5, 25.2, None, 16.6, 11.4, 9.0),
+}
+NBS_EXPONENT = {"agua": 1.75, "aceite": 1.40}  # Tabla 1: V·D^n = c (D en pulgadas)
+NBS_T_INITIAL, NBS_T_MEDIUM, NBS_T_RATE = 875.0, 20.0, 720.0
+NBS_TOLERANCES = {"velocidad": 0.15, "exponente": 0.15}
+
+
+def nbs_diameters_in() -> tuple[float, ...]:
+    import math
+
+    return tuple((6 * v / math.pi) ** (1 / 3) for v in NBS_VOLUME_IN3)

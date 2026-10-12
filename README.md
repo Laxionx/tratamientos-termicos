@@ -31,6 +31,23 @@ print(r.ms_c, r.retained_austenite("volumen"), r.carbides("volumen"))
 El detalle, con cada caso, está en
 [docs/fase1-desestabilizacion.md](docs/fase1-desestabilizacion.md).
 
+## Fase 2: temple de la bola
+
+Conducción transitoria en una esfera con convección: velocidad de enfriamiento en superficie,
+medio radio y centro según el diámetro y el medio, y comparación con una velocidad crítica de
+temple dada.
+
+- Coincide con la solución analítica a 0,03 % o menos.
+- **Pasa la validación** contra esferas de acero medidas por el NBS en 1925 (dominio público):
+  con el coeficiente calibrado en la esfera de 3/4", 7 de 11 velocidades en el centro quedan a
+  ±15 %.
+- Reproduce la ley de tamaño del NBS: n = 1,68 frente a 1,75 en agua, y 1,35 frente a 1,40 en
+  aceite.
+- **Sesgo:** las esferas grandes salen entre 10 y 19 % más rápidas de lo medido, porque falta el
+  calor latente de la transformación.
+
+Ver [docs/fase2-temple.md](docs/fase2-temple.md) y `python ejemplos/temple_bolas.py`.
+
 ## Instalación
 
 ```bash
@@ -49,7 +66,8 @@ con el comando de arriba.
 | Fase | Contenido |
 |---|---|
 | 1 ✅ | Desestabilización: austenita retenida y carburos (validada; acierta solo en una ventana) |
-| 2 | Temple de la bola: enfriamiento según diámetro y medio, y perfil de dureza |
+| 2 ✅ | Temple de la bola: enfriamiento según diámetro y medio (validado con el NBS); la dureza, contra una velocidad crítica dada |
+| 1b | Cinética de precipitación (Avrami) para la desestabilización |
 | 3 | Revenido (Hollomon-Jaffe) y cálculo de carga del horno |
 | Más adelante | Pirometalurgia no ferrosa: fundición de Cu y Sn, y refinación |
 
