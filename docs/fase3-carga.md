@@ -1,4 +1,4 @@
-# Fase 3: cálculo de carga del horno (y por qué no hay revenido)
+# Fase 3: cálculo de carga del horno
 
 ## 3a. Cálculo de carga
 
@@ -69,22 +69,7 @@ a mano, y una carga imposible avisa. Las 7 mutaciones del código hacen fallar l
 - Los precios y materiales del ejemplo son los del estudio (Polonia, mayo de 2023), no de una
   planta peruana.
 
-## 3b. Revenido: no validable con datos abiertos
+## 3b. Revenido
 
-El brief pedía validar el parámetro de Hollomon-Jaffe, P = T·(C + log t), ajustando la curva de
-dureza a un tiempo de revenido y prediciendo otro, a ±2 HRC, **solo con datos abiertos
-tabulados**. No se encontraron:
-- Informe del ORNL sobre aceros 2,25-12 % Cr (OSTI 6792269, dominio público): revenidos de 2 h y
-  de 2 + 8 h, pero la dureza está solo en gráficos.
-- Judge et al. (2018), *Scientific Reports* 8, 445 (acero 4340, revenidos de 1 s y 1 h
-  «equivalentes»): la dureza está solo en gráficos.
-- AISI D2 en *Materials Research* (SciELO, 2023): muestra que el parámetro falla cerca del pico de
-  endurecimiento secundario.
-
-Por eso no hay módulo de revenido: sin validación no se publica. Para los hierros blancos alto
-cromo, además, el parámetro no aplica: su endurecimiento secundario por transformación de la
-austenita retenida a 450-550 °C rompe la equivalencia entre tiempo y temperatura.
-
-Para hacerlo haría falta una tabla de dureza del mismo acero a al menos dos tiempos y varias
-temperaturas de revenido. También serviría digitalizar las figuras, con un error de lectura
-declarado.
+Pasó a su propio documento: [fase3b-revenido.md](fase3b-revenido.md). No se hallaron tablas
+abiertas; se validó con la figura digitalizada de un artículo CC BY sobre fundición nodular.

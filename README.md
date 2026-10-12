@@ -57,8 +57,18 @@ la química objetivo. Es robusta a los rangos de composición de cada material.
   Foundry Engineering*, CC BY): las 19 cargas a 0,42 puntos o menos y sus precios al centavo.
 - Encontró una errata en una de esas cargas.
 
-El revenido (Hollomon-Jaffe) quedó sin implementar: no hay datos abiertos tabulados para
-validarlo. Ver [docs/fase3-carga.md](docs/fase3-carga.md) y `python ejemplos/carga_xcr18.py`.
+Ver [docs/fase3-carga.md](docs/fase3-carga.md) y `python ejemplos/carga_xcr18.py`.
+
+## Fase 3b: revenido
+
+Parámetro de Hollomon-Jaffe: con la dureza tras revenidos de 1 h, predice la de otros tiempos.
+
+- **Validado con una fundición nodular** de Salas Vicente et al. (2021, *Metals*, CC BY), con
+  datos leídos de su figura: 19 de 36 predicciones a ±25 HV. Pasa el corte por poco.
+- Error sistemático: subestima la dureza de los revenidos cortos y la sobreestima en los largos.
+- No aplica a los hierros blancos alto cromo, que se endurecen al revenir a 450-550 °C.
+
+Ver [docs/fase3b-revenido.md](docs/fase3b-revenido.md) y `python ejemplos/revenido_nodular.py`.
 
 ## Instalación
 
@@ -81,7 +91,7 @@ con el comando de arriba.
 | 2 ✅ | Temple de la bola: enfriamiento según diámetro y medio (validado con el NBS); la dureza, contra una velocidad crítica dada |
 | 1b ✅ | Tiempo de permanencia: la AR tiende al equilibrio, pero el fallo con Mo es una discrepancia entre dos estudios del mismo laboratorio ([docs](docs/fase1b-cinetica.md)) |
 | 3a ✅ | Cálculo de carga del horno: reproduce las 19 cargas de un estudio publicado de hierro alto cromo ([docs](docs/fase3-carga.md)) |
-| 3b ⛔ | Revenido (Hollomon-Jaffe): no validable, sin datos abiertos tabulados; no se implementó |
+| 3b ✅ | Revenido (Hollomon-Jaffe): pasa por poco con una fundición nodular, 19 de 36 a ±25 HV, con sesgo según el tiempo ([docs](docs/fase3b-revenido.md)) |
 | Más adelante | Pirometalurgia no ferrosa: fundición de Cu y Sn, y refinación |
 
 ## Licencia

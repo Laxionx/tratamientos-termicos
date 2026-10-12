@@ -217,3 +217,28 @@ AFE_SHARES = {  # carga: {material: %} (vacío en la tabla = 0)
 }  # fmt: skip
 AFE_PRICES = {"W1": 4061.96, "W8": 4394.25, "W15": 7417.87}  # PLN/t, citados en el texto
 AFE_PRICE_STEEL_10 = 4304.87  # «mínimo 10 % de chatarra de acero» (texto); se compara con W16
+
+# ---------------------------------------------------------------- Fase 3b: revenido
+NODULAR = (
+    "Salas Vicente, Carcel Carrasco, Fernández Antoni, Ferrero Taberner y Pascual Guillamón "
+    "(2021), Metals 11(2) 297, CC BY; Figura 6 digitalizada"
+)
+# Fundición nodular (C 3,25-3,70; Si 2,40-3,00), templada y revenida 10 min, 20 min, 1 h, 5 h y
+# 24 h a 400, 500, 600 y 700 °C. Dureza HV leída de la Figura 6 (imagen de 2550 × 2000 px): ejes
+# calibrados con el marco y cada punto ajustado al centroide de su marcador; lectura ±5 HV.
+# Grupos según el texto (secc. 3.1 y 4.1) y la leyenda de la Figura 6, que coinciden: 15 min a
+# 880 °C y agua, 592 HV; 15 min y aire forzado, 291 HV (ferrita y perlita fina); 5 h y agua,
+# 420 HV (ferrita y martensita). El pie de la Figura 5 cruza los paneles (b) y (c).
+# La abscisa del artículo es T(20 + ln t), no la de Hollomon-Jaffe con log10.
+NODULAR_TIMES_H = (1 / 6, 1 / 3, 1.0, 5.0, 24.0)
+NODULAR_HV = {  # grupo: {temperatura °C: HV a cada tiempo}
+    "agua": {400: (463.4, 448.7, 407.2, 387.9, 366.1), 500: (394.3, 347.3, 331.0, 273.1, 279.2),
+             600: (312.1, 299.0, 278.3, 199.6, 151.8), 700: (242.9, 214.2, 157.2, 140.7, 137.3)},
+    "aire": {400: (289.3, 292.1, 283.2, 288.8, 301.9), 500: (286.5, 290.7, 283.0, 245.3, 254.2),
+             600: (276.7, 278.8, 271.2, 238.4, 165.5), 700: (238.5, 216.8, 163.8, 144.7, 136.3)},
+    "agua tras 5 h": {400: (386.9, 392.8, 379.8, 317.3, 294.9),
+                      500: (323.0, 317.8, 285.4, 255.8, 224.6),
+                      600: (281.3, 270.0, 198.5, 186.3, 143.6),
+                      700: (228.5, 204.0, 154.7, 133.5, 133.4)},
+}  # fmt: skip
+NODULAR_QUENCHED_HV = {"agua": 592.0, "aire": 291.0, "agua tras 5 h": 420.0}  # del texto
