@@ -122,3 +122,16 @@ def nbs_diameters_in() -> tuple[float, ...]:
     import math
 
     return tuple((6 * v / math.pi) ** (1 / 3) for v in NBS_VOLUME_IN3)
+
+
+# ------------------------------------------------------------------- fase 1b: tiempo a 1000 °C
+# González-Pociño, Álvarez-Antolín y Asensio-Lozano (2019), Metals 9(5) 522, CC BY, Tabla 2:
+# Rietveld tras 4, 8, 12 y 24 h a 1000 °C, enfriadas al aire o en aceite. Antes de desestabilizar
+# las piezas pasaron por 700 °C (austenita a perlita, para mecanizar). Columna «Volume %» del
+# Rietveld; se toma como masa, que es lo que entrega Rietveld (decisión previa a comparar).
+METALS_522 = "González-Pociño, Álvarez-Antolín y Asensio-Lozano (2019), Metals 9(5) 522, CC BY"
+METALS_522_ALLOY = {"C": 3.0, "SI": 1.2, "MN": 0.8, "CR": 18.2, "MO": 2.0}
+METALS_522_DATA = {  # medio: {horas: (AR %, M7C3 %)}
+    "aire": {4: (8.24, 55.17), 8: (9.94, 54.58), 12: (2.61, 51.76), 24: (2.83, 52.87)},
+    "aceite": {4: (6.59, 43.33), 8: (6.94, 56.52), 12: (2.26, 52.90), 24: (2.22, 46.43)},
+}

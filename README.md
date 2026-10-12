@@ -67,7 +67,7 @@ con el comando de arriba.
 |---|---|
 | 1 ✅ | Desestabilización: austenita retenida y carburos (validada; acierta solo en una ventana) |
 | 2 ✅ | Temple de la bola: enfriamiento según diámetro y medio (validado con el NBS); la dureza, contra una velocidad crítica dada |
-| 1b | Cinética de precipitación (Avrami) para la desestabilización |
+| 1b ✅ | Tiempo de permanencia: la AR tiende al equilibrio, pero el fallo con Mo es una discrepancia entre dos estudios del mismo laboratorio ([docs](docs/fase1b-cinetica.md)) |
 | 3 | Revenido (Hollomon-Jaffe) y cálculo de carga del horno |
 | Más adelante | Pirometalurgia no ferrosa: fundición de Cu y Sn, y refinación |
 
