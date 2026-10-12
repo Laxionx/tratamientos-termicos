@@ -48,6 +48,18 @@ temple dada.
 
 Ver [docs/fase2-temple.md](docs/fase2-temple.md) y `python ejemplos/temple_bolas.py`.
 
+## Fase 3: cálculo de carga del horno
+
+Programación lineal: la mezcla más barata de chatarra, retorno, arrabio y ferroaleaciones que da
+la química objetivo. Es robusta a los rangos de composición de cada material.
+
+- **Reproduce el estudio de Mędoń et al. (2023)** sobre hierro alto cromo XCr18 (*Archives of
+  Foundry Engineering*, CC BY): las 19 cargas a 0,42 puntos o menos y sus precios al centavo.
+- Encontró una errata en una de esas cargas.
+
+El revenido (Hollomon-Jaffe) quedó sin implementar: no hay datos abiertos tabulados para
+validarlo. Ver [docs/fase3-carga.md](docs/fase3-carga.md) y `python ejemplos/carga_xcr18.py`.
+
 ## Instalación
 
 ```bash
@@ -68,7 +80,8 @@ con el comando de arriba.
 | 1 ✅ | Desestabilización: austenita retenida y carburos (validada; acierta solo en una ventana) |
 | 2 ✅ | Temple de la bola: enfriamiento según diámetro y medio (validado con el NBS); la dureza, contra una velocidad crítica dada |
 | 1b ✅ | Tiempo de permanencia: la AR tiende al equilibrio, pero el fallo con Mo es una discrepancia entre dos estudios del mismo laboratorio ([docs](docs/fase1b-cinetica.md)) |
-| 3 | Revenido (Hollomon-Jaffe) y cálculo de carga del horno |
+| 3a ✅ | Cálculo de carga del horno: reproduce las 19 cargas de un estudio publicado de hierro alto cromo ([docs](docs/fase3-carga.md)) |
+| 3b ⛔ | Revenido (Hollomon-Jaffe): no validable, sin datos abiertos tabulados; no se implementó |
 | Más adelante | Pirometalurgia no ferrosa: fundición de Cu y Sn, y refinación |
 
 ## Licencia

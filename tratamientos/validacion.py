@@ -135,3 +135,85 @@ METALS_522_DATA = {  # medio: {horas: (AR %, M7C3 %)}
     "aire": {4: (8.24, 55.17), 8: (9.94, 54.58), 12: (2.61, 51.76), 24: (2.83, 52.87)},
     "aceite": {4: (6.59, 43.33), 8: (6.94, 56.52), 12: (2.26, 52.90), 24: (2.22, 46.43)},
 }
+
+
+# ------------------------------------------------------------------ fase 3a: cálculo de carga
+# Mędoń, Szczęsny, Ziółkowski, Guzik, Czarny y Kopyciński (2023), Archives of Foundry Engineering
+# 23(4) 54-64, doi 10.24425/afe.2023.146679, CC BY 4.0. Tablas 1 a 4 y texto. Hierro alto cromo
+# EN-GJN-HV600 (XCr18). Rangos tal como se publican: «máx. X» -> (0, X); «mín. X» -> (X, 100);
+# «-» o vacío -> (0, 0). El FeCr HC figura con 0,80-1,00 % de C (inusual; se usa tal cual).
+AFE = "Mędoń et al. (2023), Archives of Foundry Engineering 23(4) 54, CC BY 4.0"
+_MX, _100 = 0.0, 100.0
+AFE_MATERIALS = {  # nombre: (precio PLN/t, {elemento: (mín, máx)})
+    "Chatarra de acero": (2200.0, {"C": (0.10, 0.25), "SI": (0.20, 0.30), "MN": (_MX, 0.20),
+                                   "P": (_MX, 0.04), "S": (_MX, 0.03)}),
+    "Retorno": (4160.0, {"C": (1.80, 2.10), "SI": (0.72, 0.78), "MN": (1.00, 1.10),
+                         "P": (0.03, 0.06), "S": (0.02, 0.05), "CR": (19.0, 20.0),
+                         "NI": (1.40, 1.60), "MO": (2.40, 2.60)}),
+    "FeCr HC": (9700.0, {"C": (0.80, 1.00), "SI": (1.80, 2.00), "MN": (_MX, 0.03),
+                         "S": (_MX, 0.02), "CR": (60.0, 64.0)}),
+    "FeCr LC": (19400.0, {"C": (0.08, 0.10), "SI": (1.40, 1.50), "MN": (_MX, 0.03),
+                          "S": (_MX, 0.02), "CR": (60.0, 64.0)}),
+    "FeMn75A": (5900.0, {"C": (6.40, 6.60), "SI": (3.60, 4.00), "MN": (75.0, _100),
+                         "P": (_MX, 0.45), "S": (_MX, 0.03)}),
+    "FeMo60": (167600.0, {"C": (_MX, 0.05), "SI": (0.70, 0.80), "P": (0.05, 0.10),
+                          "S": (_MX, 0.03), "MO": (60.0, _100)}),
+    "Ni": (109500.0, {"NI": (98.0, _100)}),
+    "FeSi75A": (8900.0, {"C": (_MX, 0.10), "SI": (72.0, 78.0), "MN": (_MX, 0.40),
+                         "P": (_MX, 0.05), "S": (_MX, 0.02), "CR": (_MX, 0.05)}),
+    "Carbono": (7798.0, {"C": (98.0, _100)}),
+    "Arrabio": (2689.0, {"C": (3.80, 4.00), "SI": (1.00, 1.20), "MN": (_MX, 0.20),
+                         "P": (_MX, 0.04), "S": (_MX, 0.03)}),
+}  # fmt: skip
+AFE_TARGET = {
+    "C": (1.80, 2.40),
+    "SI": (0.0, 1.00),
+    "MN": (0.50, 1.50),
+    "P": (0.0, 0.08),
+    "S": (0.0, 0.08),
+    "CR": (18.0, 23.0),
+    "NI": (0.0, 2.00),
+    "MO": (0.0, 3.00),
+}
+# Tabla 3: límites de cada carga (fracción). Tabla 4: participaciones publicadas (%).
+AFE_LIMITS = {
+    "W1": {},
+    **{f"W{i}": {"Retorno": (0.0, lim)} for i, lim in zip(range(2, 9),
+       (0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.30), strict=True)},
+    **{f"W{i}": {"Arrabio": (lim, 1.0)} for i, lim in zip(range(9, 16),
+       (0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35), strict=True)},
+    "W16": {"Chatarra de acero": (0.10, 1.0), "Arrabio": (0.20, 1.0)},
+    "W17": {"Chatarra de acero": (0.20, 1.0), "Arrabio": (0.20, 1.0)},
+    "W18": {"Chatarra de acero": (0.20, 1.0), "Arrabio": (0.25, 1.0)},
+    "W19": {"Chatarra de acero": (0.20, 1.0), "Arrabio": (0.30, 1.0)},
+}  # fmt: skip
+AFE_SHARES = {  # carga: {material: %} (vacío en la tabla = 0)
+    "W1": {"Chatarra de acero": 5.17, "Retorno": 94.74},
+    "W2": {"Chatarra de acero": 8.34, "Retorno": 90.00, "FeCr HC": 1.50, "Carbono": 0.16},
+    "W3": {"Chatarra de acero": 15.02, "Retorno": 80.00, "FeCr HC": 4.67, "Carbono": 0.31},
+    "W4": {"Chatarra de acero": 21.70, "Retorno": 70.00, "FeCr HC": 7.83, "Carbono": 0.047},
+    "W5": {"Chatarra de acero": 28.38, "Retorno": 60.00, "FeCr HC": 11.00, "Carbono": 0.62},
+    "W6": {"Chatarra de acero": 35.07, "Retorno": 50.00, "FeCr HC": 14.17, "Carbono": 0.77},
+    "W7": {"Chatarra de acero": 41.62, "Retorno": 40.00, "FeCr HC": 17.33, "FeMn75A": 0.13,
+           "Carbono": 0.91},
+    "W8": {"Chatarra de acero": 48.18, "Retorno": 30.00, "FeCr HC": 20.50, "FeMn75A": 0.27,
+           "Carbono": 1.05},
+    "W9": {"Chatarra de acero": 0.26, "Retorno": 94.74, "Arrabio": 5.00},
+    "W10": {"Retorno": 87.80, "FeCr HC": 2.20, "Arrabio": 10.00},
+    "W11": {"Retorno": 80.49, "FeCr HC": 4.51, "Arrabio": 15.00},
+    "W12": {"Chatarra de acero": 0.21, "Retorno": 72.87, "FeCr HC": 6.92, "Arrabio": 20.00},
+    "W13": {"Chatarra de acero": 3.15, "Retorno": 61.24, "FeCr HC": 10.61, "Arrabio": 25.00},
+    "W14": {"Chatarra de acero": 2.44, "Retorno": 54.96, "FeCr HC": 3.01, "FeCr LC": 9.59,
+            "Arrabio": 30.00},
+    "W15": {"Chatarra de acero": 30.17, "Retorno": 5.10, "FeCr LC": 28.39, "FeMn75A": 0.60,
+            "Carbono": 0.75, "Arrabio": 35.00},
+    "W16": {"Chatarra de acero": 10.00, "Retorno": 58.54, "FeCr HC": 11.46, "Arrabio": 20.00},
+    "W17": {"Chatarra de acero": 20.00, "Retorno": 43.64, "FeCr HC": 16.18, "FeMn75A": 0.08,
+            "Carbono": 0.1, "Arrabio": 20.00},
+    "W18": {"Chatarra de acero": 20.00, "Retorno": 36.25, "FeCr HC": 14.42, "FeCr LC": 4.10,
+            "FeMn75A": 0.18, "Carbono": 0.05, "Arrabio": 25.00},
+    "W19": {"Chatarra de acero": 20.0, "Retorno": 28.79, "FeCr HC": 6.17, "FeCr LC": 14.71,
+            "FeMn75A": 0.28, "Carbono": 0.04, "Arrabio": 30.00},
+}  # fmt: skip
+AFE_PRICES = {"W1": 4061.96, "W8": 4394.25, "W15": 7417.87}  # PLN/t, citados en el texto
+AFE_PRICE_STEEL_10 = 4304.87  # «mínimo 10 % de chatarra de acero» (texto); se compara con W16
