@@ -36,7 +36,7 @@ El detalle, con cada caso, está en
 ```bash
 python -m venv .venv
 .venv\Scripts\python -m pip install -e ".[dev]"
-curl -L -o tdb/mc_fe_v2.059.pycalphad.tdb https://raw.githubusercontent.com/pycalphad/pycalphad/develop/examples/databases/mc_fe_v2.059.pycalphad.tdb
+curl -L --create-dirs -o tdb/mc_fe_v2.059.pycalphad.tdb https://raw.githubusercontent.com/pycalphad/pycalphad/develop/examples/databases/mc_fe_v2.059.pycalphad.tdb
 .venv\Scripts\python -m pytest
 ```
 
