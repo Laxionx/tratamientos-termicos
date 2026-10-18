@@ -74,6 +74,8 @@ Ver [docs/fase3b-revenido.md](docs/fase3b-revenido.md) y `python ejemplos/reveni
 
 App Streamlit didáctica: la bola en corte, anillo por anillo y segundo a segundo, con los números del modelo de la fase 2 (el color de cada anillo es la temperatura que calcula `quench_sphere`), y la validación contra las esferas del NBS. No calcula dureza.
 
+**[▶ Probar en el navegador](https://tratamientos-termicos-6wqfzanyzyscgjwaexmopu.streamlit.app/)** (Streamlit Community Cloud, sin registro).
+
 ```bash
 pip install -e ".[app]"
 streamlit run app/streamlit_app.py
