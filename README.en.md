@@ -61,7 +61,7 @@ See [docs/fase3b-revenido.md](docs/fase3b-revenido.md) (in Spanish) and `python 
 
 ## Ball quenching app
 
-A didactic Streamlit app: the ball in section, ring by ring and second by second, with the numbers of the phase 2 model (the color of each ring is the temperature that `quench_sphere` calculates), and the validation against the NBS spheres. It does not calculate hardness.
+A didactic Streamlit app: the ball in cross-section, ring by ring and second by second, with the numbers of the phase 2 model (the color of each ring is the temperature that `quench_sphere` calculates), and the validation against the NBS spheres. It does not calculate hardness.
 
 **[▶ Try it in the browser](https://tratamientos-termicos-6wqfzanyzyscgjwaexmopu.streamlit.app/?lang=en)** (Streamlit Community Cloud, no sign-up). The app has an Español / English selector at the top of the sidebar; `?lang=en` opens it in English.
 
@@ -70,7 +70,7 @@ pip install -e ".[app]"
 streamlit run app/streamlit_app.py
 ```
 
-For the cloud, `requirements.txt` is enough (pinned versions, no pycalphad). The controls and the «What data it needs» table come from a single definition, `app/controles.py`; the texts of each language are in `app/textos_es.py` and `app/textos_en.py`.
+For the cloud, `requirements.txt` is enough (pinned versions, no pycalphad). The controls and the "What data it needs" table come from a single definition, `app/controles.py`; the texts of each language are in `app/textos_es.py` and `app/textos_en.py`.
 
 ## Installation
 
