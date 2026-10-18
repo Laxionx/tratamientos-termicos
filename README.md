@@ -70,6 +70,17 @@ Parámetro de Hollomon-Jaffe: con la dureza tras revenidos de 1 h, predice la de
 
 Ver [docs/fase3b-revenido.md](docs/fase3b-revenido.md) y `python ejemplos/revenido_nodular.py`.
 
+## App Temple de la bola
+
+App Streamlit didáctica: la bola en corte, anillo por anillo y segundo a segundo, con los números del modelo de la fase 2 (el color de cada anillo es la temperatura que calcula `quench_sphere`), y la validación contra las esferas del NBS. No calcula dureza.
+
+```bash
+pip install -e ".[app]"
+streamlit run app/streamlit_app.py
+```
+
+Para la nube basta `requirements.txt` (versiones fijas, sin pycalphad). Los controles y la tabla «Qué datos necesita» salen de una sola definición, `app/controles.py`.
+
 ## Instalación
 
 ```bash
