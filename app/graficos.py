@@ -8,6 +8,7 @@ import math
 import plotly.graph_objects as go
 from calculo import ACCEPTED, T_MARK, VALIDATED_IN, NbsRow, QuenchView, curve, model_curve
 from dibujo import INK, PAPER, STEEL, es
+from i18n import t, tm
 
 FONT = dict(family="Segoe UI, Helvetica, Arial, sans-serif", color=INK, size=13)
 POSITION_COLORS = {"centro": "#C0462B", "medio radio": "#B7791F", "superficie": "#3B82A6"}
@@ -32,18 +33,19 @@ def temperature_figure(view: QuenchView) -> go.Figure:
     for c in view.crossings:
         times, temps = curve(view.result, c.position)
         fig.add_trace(go.Scatter(
-            x=times, y=temps, mode="lines", name=c.name,
+            x=times, y=temps, mode="lines", name=tm(c.name),
             line=dict(color=POSITION_COLORS[c.name], width=3),
         ))  # fmt: skip
         fig.add_trace(go.Scatter(
             x=[c.time_s], y=[T_MARK], mode="markers", showlegend=False,
             marker=dict(size=10, color=POSITION_COLORS[c.name], line=dict(color=PAPER, width=2)),
-            hovertemplate=f"{c.name}: {es(c.time_s, 1)} s, {es(c.rate, 1)} °C/s<extra></extra>",
+            hovertemplate=t("plot.temp.hover", name=tm(c.name), t=es(c.time_s, 1),
+                            rate=es(c.rate, 1)),
         ))  # fmt: skip
     fig.add_hline(y=T_MARK, line=dict(color=STEEL, dash="dash", width=1.5),
                   annotation_text=f"{T_MARK:g} °C", annotation_position="top right")  # fmt: skip
-    return _layout(fig, "Cómo baja la temperatura en cada posición", 420,
-                   x=dict(title="Tiempo (s)"), y=dict(title="Temperatura (°C)"))  # fmt: skip
+    return _layout(fig, t("plot.temp.title"), 420,
+                   x=dict(title=t("plot.temp.x")), y=dict(title=t("plot.temp.y")))  # fmt: skip
 
 
 def validation_figure(rows: tuple[NbsRow, ...]) -> go.Figure:
@@ -55,37 +57,38 @@ def validation_figure(rows: tuple[NbsRow, ...]) -> go.Figure:
         lo, hi = VALIDATED_IN
         xs, ys = model_curve(medium, lo, hi)
         fig.add_trace(go.Scatter(
-            x=xs, y=ys, mode="lines", name=f"modelo, {medium}", line=dict(color=color, width=2),
+            x=xs, y=ys, mode="lines", name=t("plot.val.model", medium=tm(medium)),
+            line=dict(color=color, width=2),
         ))  # fmt: skip
         fig.add_trace(go.Scatter(
             x=[r.nominal_in for r in mine], y=[r.measured for r in mine], mode="markers",
-            name=f"medido NBS, {medium} (±{ACCEPTED:.0%})",
+            name=t("plot.val.measured", medium=tm(medium), pct=f"{ACCEPTED:.0%}"),
             marker=dict(size=10, color=color, symbol="diamond", line=dict(color=INK, width=1)),
             error_y=dict(type="data", symmetric=False, color=color, thickness=1.5, width=5,
                          array=[ACCEPTED * r.measured for r in mine],
                          arrayminus=[ACCEPTED * r.measured for r in mine]),
-            customdata=[[es(100 * r.deviation, 1), "sí" if r.inside else "no"] for r in mine],
-            hovertemplate="%{x}″: medido %{y} °C/s<br>modelo vs medido: %{customdata[0]} %"
-            "<extra></extra>",
+            customdata=[[es(100 * r.deviation, 1), t("yes") if r.inside else t("no")]
+                        for r in mine],
+            hovertemplate=t("plot.val.hover"),
         ))  # fmt: skip
         out = [r for r in mine if not r.inside]
         if out:
             fig.add_trace(go.Scatter(
                 x=[r.nominal_in for r in out], y=[r.model for r in out], mode="markers",
-                name=f"modelo fuera de ±{ACCEPTED:.0%}",
+                name=t("plot.val.out", pct=f"{ACCEPTED:.0%}"),
                 marker=dict(size=11, color=BAD, symbol="x"), showlegend=medium == "agua",
             ))  # fmt: skip
         cal = next(r for r in mine if r.calibration)
         fig.add_annotation(
             x=math.log10(cal.nominal_in),
             y=math.log10(cal.measured),
-            text="calibración (¾″)",
+            text=t("plot.val.cal"),
             ax=40,
             ay=-30,
             showarrow=True,
             arrowcolor=STEEL,
             font=dict(size=12),
         )
-    return _layout(fig, "Velocidad del centro a 720 °C: NBS frente al modelo", 480,
-                   x=dict(title="Diámetro de la esfera (pulgadas)", type="log"),
-                   y=dict(title="Velocidad en el centro (°C/s)", type="log"))  # fmt: skip
+    return _layout(fig, t("plot.val.title"), 480,
+                   x=dict(title=t("plot.val.x"), type="log"),
+                   y=dict(title=t("plot.val.y"), type="log"))  # fmt: skip

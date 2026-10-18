@@ -15,6 +15,7 @@ APP = str(ROOT / "app" / "streamlit_app.py")
 sys.path.insert(0, str(ROOT / "app"))
 
 import controles  # noqa: E402
+import i18n  # noqa: E402
 
 
 def _widgets(at: AppTest) -> list:
@@ -51,7 +52,7 @@ def test_los_controles_salen_de_la_misma_definicion_que_la_tabla():
     for d in controles.DATOS:
         assert d.label in text
     for name, _, _ in controles.FIJOS:
-        assert name in text
+        assert i18n.t(name) in text
 
 
 def test_la_tabla_recoge_un_dato_nuevo_sola(monkeypatch):
@@ -64,7 +65,7 @@ def test_no_se_ofrece_un_h_libre_ni_de_manual_y_las_temperaturas_son_fijas():
     labels = " ".join(d.label.lower() for d in controles.DATOS)
     assert "coeficiente" not in labels and " h " not in f" {labels} "
     assert {d.key for d in controles.DATOS} == {"diameter", "medium", "compare", "critical"}
-    assert [(n, v) for n, _, v in controles.FIJOS] == [
+    assert [(i18n.t(n), v) for n, _, v in controles.FIJOS] == [
         ("Temperatura de austenización", 875.0),
         ("Temperatura del medio", 20.0),
     ]

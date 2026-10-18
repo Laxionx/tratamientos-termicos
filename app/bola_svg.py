@@ -13,8 +13,9 @@ from __future__ import annotations
 import textwrap
 
 from calculo import FRAME_COUNT, RING_COUNT, SAMPLING_POWER, T_INITIAL, T_MARK, T_MEDIUM, QuenchView
-from colores import NOTE, temperature_color
-from dibujo import INK, SCHEME_NOTE, STEEL, es, svg, text
+from colores import temperature_color
+from dibujo import INK, STEEL, es, scheme_note, svg, text
+from i18n import t, tm
 
 W, H = 960, 600
 CX, CY, RADIUS = 280.0, 270.0, 190.0
@@ -24,9 +25,9 @@ HATCH = "tt-hatch"
 SWATCHES = 12
 
 
-def clock_text(t: float) -> str:
+def clock_text(seconds: float) -> str:
     """Segundos reales del fotograma, como se rotulan."""
-    return f"t = {es(t, 1 if t < 100 else 0)} s"
+    return t("svg.clock", t=es(seconds, 1 if seconds < 100 else 0))
 
 
 def ring_colors(view: QuenchView) -> list[list[str]]:
@@ -124,22 +125,24 @@ def _marks(view: QuenchView, paused: bool) -> str:
 
 def _panel(view: QuenchView) -> str:
     x, out = 560.0, []
-    out.append(text(x, 150, f"Cruce de {T_MARK:g} °C", 15, cls="t"))
+    out.append(text(x, 150, t("svg.cross", mark=f"{T_MARK:g}"), 15, cls="t"))
     for j, c in enumerate(reversed(view.crossings)):
         y = 180 + 44 * j
         out.append(f'<circle cx="{x + 6}" cy="{y - 5}" r="6" fill="{GREEN}"/>')
-        out.append(text(x + 20, y, f"{c.name.capitalize()}: a los {es(c.time_s, 1)} s", 14))
-        out.append(text(x + 20, y + 18, f"a {es(c.rate, 1)} °C/s", 13, color=STEEL))
+        out.append(
+            text(x + 20, y, t("svg.cross.at", name=tm(c.name).capitalize(), t=es(c.time_s, 1)), 14)
+        )
+        out.append(text(x + 20, y + 18, t("svg.cross.rate", rate=es(c.rate, 1)), 13, color=STEEL))
     return "".join(out)
 
 
 def _bar() -> str:
     x0, y0, w = 560.0, 336.0, 26.0
-    out = [text(x0, y0 - 10, f"Temperatura ({NOTE})", 12, color=STEEL)]
+    out = [text(x0, y0 - 10, t("svg.bar", note=t("scheme.temp")), 12, color=STEEL)]
     for j in range(SWATCHES):
-        t = T_MEDIUM + (T_INITIAL - T_MEDIUM) * j / (SWATCHES - 1)
+        temp = T_MEDIUM + (T_INITIAL - T_MEDIUM) * j / (SWATCHES - 1)
         out.append(f'<rect x="{x0 + j * w:.1f}" y="{y0}" width="{w}" height="18" fill="'
-                   f'{temperature_color(t)}"/>')  # fmt: skip
+                   f'{temperature_color(temp)}"/>')  # fmt: skip
     out.append(text(x0, y0 + 34, f"{T_MEDIUM:g} °C", 12, color=STEEL))
     out.append(text(x0 + SWATCHES * w, y0 + 34, f"{T_INITIAL:g} °C", 12, "end", color=STEEL))
     return "".join(out)
@@ -149,17 +152,14 @@ def _legend(view: QuenchView) -> str:
     frames = len(view.frame_times)
     p = view.params
     paragraphs = [
-        f"Reloj: {frames} fotogramas, t_k = t_fin·(k/{FRAME_COUNT - 1})^{SAMPLING_POWER:g} (más "
-        "densos al principio), más el fotograma en que el centro cruza 720 °C. Cada uno dura "
-        f"{es(frame_seconds(view), 2)} s de animación: el ciclo de {CYCLE_S:g} s comprime "
-        f"{es(view.result.t_end, 0)} s reales. {RING_COUNT} anillos; cada uno muestra la "
-        "temperatura a la mitad de su espesor.",
-        f"Medio: {p.medium}; h efectivo {es(view.h, 0)} W/m²K, constante. Sin calor latente ni "
-        f"capa de vapor. Color: {NOTE}.",
-    ]
+        t("svg.legend1", frames=frames, n=FRAME_COUNT - 1, power=f"{SAMPLING_POWER:g}",
+          frame_s=es(frame_seconds(view), 2), cycle=f"{CYCLE_S:g}", real=es(view.result.t_end, 0),
+          rings=RING_COUNT),
+        t("svg.legend2", medium=tm(p.medium), h=es(view.h, 0), note=t("scheme.temp")),
+    ]  # fmt: skip
     if not view.in_validated_range:
-        paragraphs.append("Fuera del rango validado con el NBS (0,75 a 2,77 pulgadas).")
-    lines = [ln for para in paragraphs for ln in textwrap.wrap(para, 140)] + [SCHEME_NOTE]
+        paragraphs.append(t("svg.legend3"))
+    lines = [ln for para in paragraphs for ln in textwrap.wrap(para, 140)] + [scheme_note()]
     top = H - 17 * len(lines) - 4
     return "".join(
         text(24, top + 17 * n, ln, 12, color=INK if n == len(lines) - 1 else STEEL)
@@ -172,15 +172,16 @@ def _critical_note(view: QuenchView) -> str:
     if layer is None:
         return ""
     if layer.none:
-        msg = "Ninguna capa alcanza la velocidad crítica."
+        msg = t("svg.crit.none")
     elif layer.whole:
-        msg = f"Toda la bola la alcanza (capa de {es(layer.depth_mm, 1)} mm: el radio)."
+        msg = t("svg.crit.whole", depth=es(layer.depth_mm, 1))
     else:
-        msg = f"Capa rayada: {es(layer.depth_mm, 1)} mm de {es(view.radius_mm, 1)} mm de radio."
-    note = f"Velocidad crítica de {es(view.params.critical_rate, 0)} °C/s (dato del material). "
-    lines = [*textwrap.wrap(msg, 52), *textwrap.wrap(note + "Criterio simple; no es dureza.", 52)]
+        msg = t("svg.crit.layer", depth=es(layer.depth_mm, 1), radius=es(view.radius_mm, 1))
+    note = t("svg.crit.note", rate=es(view.params.critical_rate, 0))
+    first = textwrap.wrap(msg, 52)
+    lines = [*first, *textwrap.wrap(note + t("svg.crit.simple"), 52)]
     return "".join(
-        text(560, 440 + 17 * n, ln, 12, color=INK if n < len(textwrap.wrap(msg, 52)) else STEEL)
+        text(560, 440 + 17 * n, ln, 12, color=INK if n < len(first) else STEEL)
         for n, ln in enumerate(lines)
     )
 
@@ -206,13 +207,13 @@ def _clocks(view: QuenchView, paused: bool) -> str:
 
 def ball_svg(view: QuenchView, paused: bool = False) -> str:
     frame = view.still_frame if paused else 0
-    title = text(24, 30, f"Bola de {es(view.params.diameter_in, 2)} pulgadas templada en "
-                 f"{view.params.medium}, en corte", 18, cls="t")  # fmt: skip
+    title = text(24, 30, t("svg.title", d=es(view.params.diameter_in, 2),
+                           medium=tm(view.params.medium)), 18, cls="t")  # fmt: skip
     outline = (f'<circle cx="{CX}" cy="{CY}" r="{RADIUS}" fill="none" stroke="{INK}" '
                f'stroke-width="3"/>')  # fmt: skip
     body = (
         title + _rings(view, frame, paused) + _critical(view) + outline + _marks(view, paused)
         + _clocks(view, paused) + _panel(view) + _bar() + _critical_note(view) + _legend(view)
     )  # fmt: skip
-    return svg(W, H, body, paused, "Corte de una bola de acero templada, enfriándose por anillos",
+    return svg(W, H, body, paused, t("svg.label"),
                "" if paused else _motion_css(view))  # fmt: skip

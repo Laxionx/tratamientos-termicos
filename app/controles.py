@@ -1,5 +1,6 @@
 """Cada dato de entrada se define una sola vez: arma la barra lateral y la tabla «Qué datos
-necesita» de la guía, así las dos no se pueden desfasar."""
+necesita» de la guía, así las dos no se pueden desfasar. Sus textos están en `textos_es.py` y
+`textos_en.py`, con las claves `dato.<clave>.label|meaning|source`."""
 
 from __future__ import annotations
 
@@ -8,74 +9,90 @@ from dataclasses import dataclass
 import pandas as pd
 import streamlit as st
 from calculo import MEDIA, T_INITIAL, T_MEDIUM, QuenchParams
+from i18n import current, int_num, num_g, opt, t, use
 
 PREFIX = "dato_"
+
+
+def _tx(text: str) -> str:
+    """El texto de una clave de `textos_*`; si no es una clave, el propio texto."""
+    try:
+        return t(text)
+    except KeyError:
+        return text
 
 
 @dataclass(frozen=True)
 class Dato:
     key: str
-    label: str
-    unit: str
+    label_k: str
+    unit_k: str
     lo: float
     hi: float
     default: float | bool | str
     step: float
-    meaning: str
-    source: str
+    meaning_k: str
+    source_k: str
     widget: str = "number"  # number | select | check
     options: tuple[str, ...] = ()
 
     @property
+    def label(self) -> str:
+        return _tx(self.label_k)
+
+    @property
+    def unit(self) -> str:
+        return _tx(self.unit_k)
+
+    @property
+    def meaning(self) -> str:
+        return _tx(self.meaning_k)
+
+    @property
+    def source(self) -> str:
+        return _tx(self.source_k)
+
+    @property
     def range_text(self) -> str:
         if self.widget == "select":
-            return " o ".join(self.options)
+            return t("dato.or").join(opt(o) for o in self.options)
         if self.widget == "check":
-            return "sí o no"
-        return f"{_num(self.lo)} a {_num(self.hi)}"
+            return t("yesno")
+        return t("dato.range", lo=_num(self.lo), hi=_num(self.hi))
 
     @property
     def default_text(self) -> str:
         if self.widget == "check":
-            return "no" if not self.default else "sí"
-        return self.default if isinstance(self.default, str) else _num(self.default)
+            return t("yes") if self.default else t("no")
+        return opt(self.default) if isinstance(self.default, str) else _num(self.default)
 
     @property
     def help(self) -> str:
         unit = f" ({self.unit})" if self.unit else ""
-        return f"{self.meaning} Rango{unit}: {self.range_text}. En planta: {self.source}"
+        return t("dato.help", meaning=self.meaning, unit=unit, range=self.range_text,
+                 source=self.source)  # fmt: skip
 
 
 def _num(x: float) -> str:
-    """Número en español: «1 000», «2,7»."""
-    if float(x).is_integer():
-        return f"{int(x):,}".replace(",", " ")
-    return f"{x:g}".replace(".", ",")
+    """Número en el formato del idioma: «1 000», «2,7» (es) o «1,000», «2.7» (en)."""
+    return int_num(x) if float(x).is_integer() else num_g(x)
 
 
 DATOS: tuple[Dato, ...] = (
-    Dato("diameter", "Diámetro de la bola", "pulgadas", 0.5, 5.0, 2.0, 0.05,
-         "Diámetro de la bola de acero. El NBS midió entre 0,75 y 2,77 pulgadas: fuera de ese "
-         "rango el resultado es una extrapolación.",
-         "medida de la bola (1 pulgada = 25,4 mm)."),
-    Dato("medium", "Medio de temple", "", 0, 0, "agua", 0,
-         "Líquido en reposo a 20 °C. Solo hay dos, los que midió el NBS: el modelo trae un "
-         "coeficiente de transferencia calibrado para cada uno.",
-         "el tanque de temple.", widget="select", options=MEDIA),
-    Dato("compare", "Comparar con una velocidad crítica", "", 0, 1, False, 0,
-         "Opcional. Sombrea en la bola la capa que se enfría a 720 °C al menos tan rápido como "
-         "la velocidad crítica. Es un criterio simple; no es dureza.",
-         "ensayos del material (curvas de enfriamiento continuo).", widget="check"),
-    Dato("critical", "Velocidad crítica de temple", "°C/s", 1, 200, 20, 1,
-         "Dato del material, no del modelo: el valor de partida no tiene fuente. Solo se usa si "
-         "se activa la comparación.",
-         "ensayos del material (dilatometría o curvas de enfriamiento continuo)."),
+    Dato("diameter", "dato.diameter.label", "unit.pulgadas", 0.5, 5.0, 2.0, 0.05,
+         "dato.diameter.meaning", "dato.diameter.source"),
+    Dato("medium", "dato.medium.label", "", 0, 0, "agua", 0,
+         "dato.medium.meaning", "dato.medium.source", widget="select", options=MEDIA),
+    Dato("compare", "dato.compare.label", "", 0, 1, False, 0,
+         "dato.compare.meaning", "dato.compare.source", widget="check"),
+    Dato("critical", "dato.critical.label", "°C/s", 1, 200, 20, 1,
+         "dato.critical.meaning", "dato.critical.source"),
 )  # fmt: skip
 BY_KEY = {d.key: d for d in DATOS}
 # Datos que la app fija: el h calibrado solo vale con estas dos temperaturas.
 FIJOS = (
-    ("Temperatura de austenización", "°C", T_INITIAL),
-    ("Temperatura del medio", "°C", T_MEDIUM),
+    ("fixed.austenitizing", "°C", T_INITIAL),
+    ("fixed.medium", "°C", T_MEDIUM),
 )
 
 
@@ -83,12 +100,29 @@ def _ask(d: Dato) -> float | bool | str:
     key, label = PREFIX + d.key, f"{d.label} ({d.unit})" if d.unit else d.label
     sb = st.sidebar
     if d.widget == "select":
-        return sb.selectbox(label, list(d.options), d.options.index(str(d.default)), key=key,
-                            help=d.help)  # fmt: skip
+        labels = [opt(o) for o in d.options]  # el valor del modelo (en español) se rotula aquí
+        chosen = sb.selectbox(label, labels, labels.index(opt(str(d.default))), key=key,
+                              help=d.help)  # fmt: skip
+        return d.options[labels.index(chosen)]
     if d.widget == "check":
         return sb.checkbox(label, value=bool(d.default), key=key, help=d.help)
     lo, hi, v, step = (float(x) for x in (d.lo, d.hi, d.default, d.step))
     return sb.number_input(label, lo, hi, v, step, help=d.help, key=key)
+
+
+def _relabel_selects(previous: str) -> None:
+    """Al cambiar de idioma, cada lista conserva su elección: se pasa del rótulo del idioma
+    anterior al del idioma actual (el valor guardado en la sesión es el rótulo)."""
+    for d in DATOS:
+        key = PREFIX + d.key
+        if d.widget != "select" or key not in st.session_state:
+            continue
+        for raw in d.options:
+            with use(previous):
+                old = opt(raw)
+            if old == st.session_state[key]:
+                st.session_state[key] = opt(raw)
+                break
 
 
 def reset_to_example() -> None:
@@ -100,12 +134,13 @@ def reset_to_example() -> None:
 def sidebar_config() -> QuenchParams:
     """Lee la barra lateral y arma los parámetros del temple."""
     sb = st.sidebar
-    sb.button("Cargar ejemplo", on_click=reset_to_example, width="stretch")
+    seen = st.session_state.get("_lang_seen")
+    if seen and seen != current():
+        _relabel_selects(seen)
+    st.session_state["_lang_seen"] = current()
+    sb.button(t("sidebar.example"), on_click=reset_to_example, width="stretch")
     v = {d.key: _ask(d) for d in DATOS}
-    sb.caption(
-        f"Fijos: {_num(T_INITIAL)} °C → {_num(T_MEDIUM)} °C. Los coeficientes de transferencia "
-        "del NBS solo valen con estas temperaturas."
-    )
+    sb.caption(t("sidebar.fixed", t0=_num(T_INITIAL), t1=_num(T_MEDIUM)))
     return QuenchParams(float(v["diameter"]), str(v["medium"]), bool(v["compare"]),
                         float(v["critical"]))  # fmt: skip
 
@@ -114,19 +149,19 @@ def data_table() -> pd.DataFrame:
     """La tabla «Qué datos necesita», hecha de las mismas definiciones que la barra lateral."""
     rows = [
         {
-            "Dato": d.label,
-            "Unidad": d.unit,
-            "Rango": d.range_text,
-            "Ejemplo": d.default_text,
-            "Qué es": d.meaning,
-            "Cómo se obtiene": d.source[0].upper() + d.source[1:],
+            t("col.dato"): d.label,
+            t("col.unit"): d.unit,
+            t("col.range"): d.range_text,
+            t("col.example"): d.default_text,
+            t("col.what"): d.meaning,
+            t("col.how"): d.source[0].upper() + d.source[1:],
         }
         for d in DATOS
     ]
     rows += [
-        {"Dato": name, "Unidad": unit, "Rango": "fijo", "Ejemplo": _num(value),
-         "Qué es": "La app no lo deja cambiar: el h calibrado solo vale así.",
-         "Cómo se obtiene": "Condición del ensayo del NBS."}
+        {t("col.dato"): t(name), t("col.unit"): unit, t("col.range"): t("fixed.range"),
+         t("col.example"): _num(value), t("col.what"): t("fixed.meaning"),
+         t("col.how"): t("fixed.source")}
         for name, unit, value in FIJOS
     ]  # fmt: skip
     return pd.DataFrame(rows)

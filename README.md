@@ -1,8 +1,12 @@
+[English version](README.en.md)
+
 # tratamientos-termicos
 
 Tratamientos térmicos de fundiciones blancas y aceros, implementados **desde la literatura** y
 validados contra mediciones publicadas en acceso abierto. Usa termodinámica computacional
 (pycalphad) con una base de datos abierta, sin software comercial.
+
+![La bola templada en corte, anillo por anillo y segundo a segundo: cada anillo toma el color de la temperatura que calcula el modelo](docs/img/temple-bola.es.gif)
 
 ## Fase 1: desestabilización de hierros blancos alto cromo (ASTM A532)
 
@@ -74,14 +78,14 @@ Ver [docs/fase3b-revenido.md](docs/fase3b-revenido.md) y `python ejemplos/reveni
 
 App Streamlit didáctica: la bola en corte, anillo por anillo y segundo a segundo, con los números del modelo de la fase 2 (el color de cada anillo es la temperatura que calcula `quench_sphere`), y la validación contra las esferas del NBS. No calcula dureza.
 
-**[▶ Probar en el navegador](https://tratamientos-termicos-6wqfzanyzyscgjwaexmopu.streamlit.app/)** (Streamlit Community Cloud, sin registro).
+**[▶ Probar en el navegador](https://tratamientos-termicos-6wqfzanyzyscgjwaexmopu.streamlit.app/)** (Streamlit Community Cloud, sin registro). La app tiene un selector Español / English arriba de la barra lateral; con `?lang=en` abre en inglés.
 
 ```bash
 pip install -e ".[app]"
 streamlit run app/streamlit_app.py
 ```
 
-Para la nube basta `requirements.txt` (versiones fijas, sin pycalphad). Los controles y la tabla «Qué datos necesita» salen de una sola definición, `app/controles.py`.
+Para la nube basta `requirements.txt` (versiones fijas, sin pycalphad). Los controles y la tabla «Qué datos necesita» salen de una sola definición, `app/controles.py`; los textos de cada idioma están en `app/textos_es.py` y `app/textos_en.py`.
 
 ## Instalación
 
