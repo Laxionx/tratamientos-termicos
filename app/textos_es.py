@@ -9,6 +9,7 @@ TEXTS: dict[str, str] = {
         "validado con medidas de 1925. Empieza por la **Guía**; los datos se cambian en la barra "
         "lateral."
     ),
+    "err.generic": "Algo falló al calcular. Prueba con otros datos o recarga la página.",
     "toggle.label": "Mover la animación",
     "toggle.help": (
         "Apaga la animación del esquema. También se apaga sola si el sistema tiene activado "

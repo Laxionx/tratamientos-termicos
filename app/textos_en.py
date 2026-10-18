@@ -5,6 +5,7 @@ TEXTS: dict[str, str] = {
     "page.title": "Ball quenching",
     "app.title": "Ball quenching",
     "app.caption": "How the inside of a steel ball cools when quenched, using a model validated against 1925 measurements. Start with the **Guide**; change the inputs in the sidebar.",
+    "err.generic": "Something went wrong. Try other inputs or reload the page.",
     "toggle.label": "Animate",
     "toggle.help": 'Turns off the diagram animation. It also turns off on its own if the system has "reduce motion" enabled.',
     "tab.guide": "Guide",
