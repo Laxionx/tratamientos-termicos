@@ -119,3 +119,6 @@ Para predecir la AR de una aleación concreta, esta cadena no sirve: el error es
 puntos fuera de la ventana de Yu, y dentro de ella depende de un dato no publicado.
 
 No se calibró nada contra estos datos. Las mutaciones del código hacen fallar las pruebas.
+
+La fase 1c ([docs](fase1c-validacion-ampliada.md)) repite la prueba con datos nuevos de AR, sin
+reajustar: 9 de 18 casos dentro del corte.

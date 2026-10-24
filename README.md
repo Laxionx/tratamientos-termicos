@@ -107,6 +107,7 @@ con el comando de arriba.
 | 1 ✅ | Desestabilización: austenita retenida y carburos (validada; acierta solo en una ventana) |
 | 2 ✅ | Temple de la bola: enfriamiento según diámetro y medio (validado con el NBS); la dureza, contra una velocidad crítica dada |
 | 1b ✅ | Tiempo de permanencia: la AR tiende al equilibrio, pero el fallo con Mo es una discrepancia entre dos estudios del mismo laboratorio ([docs](docs/fase1b-cinetica.md)) |
+| 1c ✅ | Validación ampliada con datos nuevos de AR: 9 de 18 casos dentro de ±10 puntos (6 de 6 de tabla, 3 de 12 de una figura digitalizada); falla con Mo alto y a 900 °C ([docs](docs/fase1c-validacion-ampliada.md)) |
 | 3a ✅ | Cálculo de carga del horno: reproduce las 19 cargas de un estudio publicado de hierro alto cromo ([docs](docs/fase3-carga.md)) |
 | 3b ✅ | Revenido (Hollomon-Jaffe): pasa por poco con una fundición nodular, 19 de 36 a ±25 HV, con sesgo según el tiempo ([docs](docs/fase3b-revenido.md)) |
 | Aparte ✅ | Pirometalurgia no ferrosa (fundición de Cu y Sn, conversión y refinación): hecha en [simulador-procesos](https://github.com/Laxionx/simulador-procesos) |
