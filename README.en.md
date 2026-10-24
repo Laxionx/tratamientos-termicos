@@ -91,6 +91,7 @@ The `mc_fe_v2.059` database is the MatCalc steel database (TU Wien, E. Povoden-K
 | 2 ✅ | Ball quenching: cooling by diameter and medium (validated with the NBS); hardness, against a given critical rate |
 | 1b ✅ | Soak time: the RA tends to equilibrium, but the failure with Mo is a discrepancy between two studies of the same laboratory ([docs](docs/fase1b-cinetica.md), in Spanish) |
 | 1c ✅ | Extended validation with new RA data: 9 of 18 cases within ±10 points (6 of 6 from tables, 3 of 12 from a digitized figure); it fails with high Mo and at 900 °C ([docs](docs/fase1c-validacion-ampliada.md), in Spanish) |
+| 2b ❌ | h depending on surface temperature (Liščić oil shape, one scale factor): it does not close the bias of the large spheres, it worsens it (MAE 11.3 to 33.7 %), and it does not predict the Liščić probe ([docs](docs/fase2b-h-variable.md), in Spanish) |
 | 3a ✅ | Furnace charge calculation: reproduces the 19 charges of a published high-chromium iron study ([docs](docs/fase3-carga.md), in Spanish) |
 | 3b ✅ | Tempering (Hollomon-Jaffe): passes narrowly with a ductile iron, 19 of 36 within ±25 HV, with a bias by time ([docs](docs/fase3b-revenido.md), in Spanish) |
 | Separate ✅ | Non-ferrous pyrometallurgy (Cu and Sn smelting, converting and refining): done in [simulador-procesos](https://github.com/Laxionx/simulador-procesos) |
