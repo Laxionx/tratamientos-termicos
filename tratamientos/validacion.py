@@ -22,6 +22,8 @@ class Case:
     retained: float | None = None  # % medido
     carbides: float | None = None  # % medido
     note: str = ""
+    read_error: float = 0.0  # ± puntos de AR por leer un valor de una figura (0 = tabla o texto)
+    in_cut: bool = True  # False: contexto o contraste, fuera del corte de ±10 puntos
 
 
 YU = "Yu, Li, Feng y Wu (2026), Materials 19(5) 896, CC BY"
@@ -242,3 +244,118 @@ NODULAR_HV = {  # grupo: {temperatura °C: HV a cada tiempo}
                       700: (228.5, 204.0, 154.7, 133.5, 133.4)},
 }  # fmt: skip
 NODULAR_QUENCHED_HV = {"agua": 592.0, "aire": 291.0, "agua tras 5 h": 420.0}  # del texto
+
+
+# ------------------------------------------------------- fase 1c: validación ampliada (AR)
+# Datos nuevos de AR que NO se usaron para ajustar nada. Composiciones en % en peso, con los
+# elementos que el artículo no informa tomados como cero (decidido antes de comparar).
+NAYAK = "Nayak, Mücklich y Guitar (2023), Met. Mater. Int. 29, 934, CC BY"
+GONZALEZ_933 = "González, Borja Peral, Zafra y Fernández-Pariente (2019), Metals 9(9) 933, CC BY"
+GONZALEZ_359 = "González-Pociño, Álvarez-Antolín y Asensio-Lozano (2020), Metals 10(3) 359, CC BY"
+ORTEGA = (
+    "Ortega-Cubillos, Nannetti-Bernardini, Fredel y Campos (2015), Rev. Fac. Ing. Univ. Antioquia "
+    "76, 134, CC BY-NC-SA 4.0; Figs. 6 y 7 digitalizadas"
+)
+FORTINI = "Fortini, Suman, Zanini y Cruciani (2022), Coatings 12(8) 1218, CC BY"
+
+NAYAK_ALLOY = {"C": 2.53, "CR": 26.60, "MO": 0.24, "NI": 0.26, "MN": 0.66, "SI": 0.37, "CU": 0.03}
+GONZALEZ_933_ALLOY = {"C": 3.01, "CR": 18.2, "MO": 2.05, "MN": 0.82, "SI": 1.17}
+GONZALEZ_359_ALLOY = {"C": 2.7, "CR": 25.1, "MO": 0.5, "MN": 0.8, "SI": 1.2}
+ORTEGA_ALLOY = {"C": 2.98, "SI": 0.71, "MN": 0.75, "MO": 1.90, "NI": 0.35, "CR": 21.22, "CU": 0.06}
+FORTINI_1 = {"C": 3.83, "CR": 20.22, "SI": 0.88}
+FORTINI_2 = {"C": 4.15, "CR": 21.04, "MO": 2.78, "MN": 0.56, "SI": 1.08}
+
+# Error de lectura de las figuras de Ortega-Cubillos: mitad del paso de la escala más fina del eje
+# de AR (marcas cada 1 %). La lectura en píxeles es mejor (≈0,1 %), pero se declara el paso entero.
+ORTEGA_READ_ERROR = 0.5
+# Fig. 6 (AR frente a T) y Fig. 7 (AR frente a t): leídas con scratch/digitalizar_ortega.py. Las
+# condiciones fijas no están en el pie de la figura; se infieren de que Fig. 6 y Fig. 7 coinciden en
+# su punto común (bruto 1000 °C 6 h: 23,08 y 23,15 %; recocido 1050 °C 0,5 h: 21,12 y 21,12 %) y
+# del texto (la AR se midió solo en las condiciones de mayor dureza). Los dos puntos repetidos
+# entran una sola vez al corte (de la Fig. 6).
+ORTEGA_AS_CAST = {  # (T °C, horas): AR % vol leída
+    (900, 6.0): 24.15, (1000, 6.0): 23.08, (1100, 6.0): 37.10,
+    (1000, 1.0): 29.12, (1000, 2.0): 25.17, (1000, 4.0): 24.08,
+}  # fmt: skip
+ORTEGA_ANNEALED = {  # recocido previo 700 °C 6 h
+    (900, 0.5): 26.10, (1000, 0.5): 27.18, (1050, 0.5): 21.12, (1100, 0.5): 39.13,
+    (1050, 2.0): 22.12, (1050, 6.0): 38.13,
+}  # fmt: skip
+ORTEGA_REPEATED = {  # lectura independiente del mismo punto en la otra figura
+    "bruto": ((1000, 6.0), 23.15), "recocido": ((1050, 0.5), 21.12),
+}  # fmt: skip
+_FORTINI_DATA = (  # aleación, T °C, horas, medio, AR % masa
+    (FORTINI_1, 1000, 8, "aceite", 0.4), (FORTINI_1, 900, 0.5, "aire", 0.7),
+    (FORTINI_1, 980, 1.5, "aire", 0.7), (FORTINI_2, 1000, 8, "aceite", 20.0),
+    (FORTINI_2, 900, 0.5, "aire", 30.9), (FORTINI_2, 980, 1.5, "aire", 1.1),
+)  # fmt: skip
+
+
+def _nayak_cases() -> list[Case]:
+    note = (
+        "Rietveld (MAUD); la base no se declara, se compara en volumen. Sin revenido. Sin "
+        "mantenimiento y a 30 min el equilibrio no se alcanza: es cinética (fase 1b)."
+    )
+    data = ((0.0, 10.2), (0.5, 7.1), (1.5, 5.1))
+    return [
+        Case(NAYAK, f"Nayak 980 °C {h:g} h", NAYAK_ALLOY, 980, 25.0, "volumen", ar, note=note)
+        for h, ar in data
+    ]
+
+
+def _gonzalez_cases() -> list[Case]:
+    ni_cu = "Ni y Cu no informados (se toman como 0)."
+    cases = [
+        Case(GONZALEZ_933, "González 2019 1000 °C 6 h", GONZALEZ_933_ALLOY, 1000, 25.0, "masa",
+             13.0, note=f"{ni_cu} Dato del texto, no de tabla. Sin revenido."),
+    ]  # fmt: skip
+    # Tabla 7 de Metals 10(3) 359: Rietveld en masa, tras revenido a 200 °C (exp. 2: 6 h; exp. 4:
+    # 3 h). Los exp. 5 y 7 (200 °C) y los de 500 °C no detectaron AR: no entran al corte.
+    for exp, t, hours, medium, ar, tempering in (
+        (2, 1100, 4, "aire", 9.0, "200 °C 6 h"),
+        (4, 1100, 8, "aceite", 7.3, "200 °C 3 h"),
+    ):
+        note = f"{ni_cu} Con ablandamiento previo y revenido posterior de {tempering}."
+        label = f"González-Pociño 2020 exp. {exp} (1100 °C {hours} h, {medium})"
+        cases.append(Case(GONZALEZ_359, label, GONZALEZ_359_ALLOY, t, 25.0, "masa", ar, note=note))
+    for exp, t, hours, medium, tempering in ((5, 1000, 4, "aceite", "200 °C 3 h"),
+                                             (7, 1000, 8, "aire", "200 °C 6 h")):  # fmt: skip
+        note = f"AR no detectada (sin dato numérico) tras revenido de {tempering}: contexto."
+        label = f"González-Pociño 2020 exp. {exp} (1000 °C {hours} h, {medium})"
+        cases.append(Case(GONZALEZ_359, label, GONZALEZ_359_ALLOY, t, 25.0, "masa", None,
+                          note=note, in_cut=False))  # fmt: skip
+    return cases
+
+
+def _ortega_cases() -> list[Case]:
+    note = (
+        "AR digitalizada ±0,5 %, % en volumen (ASTM E975). Revenido posterior de 200 °C 2 h; "
+        "el medio de enfriamiento tras desestabilizar no se informa (se supone temple a 25 °C)."
+    )
+    cases = []
+    for state, data, extra in (
+        ("bruto", ORTEGA_AS_CAST, "Bruto de colada."),
+        ("recocido", ORTEGA_ANNEALED, "Recocido previo 700 °C 6 h (el modelo no lo ve)."),
+    ):
+        for (t, hours), ar in data.items():
+            label = f"Ortega {state} {t} °C {hours:g} h"
+            cases.append(Case(ORTEGA, label, ORTEGA_ALLOY, t, 25.0, "volumen", ar,
+                              note=f"{extra} {note}", read_error=ORTEGA_READ_ERROR))  # fmt: skip
+    return cases
+
+
+def _fortini_cases() -> list[Case]:
+    note = (
+        "Recargue con Nb (fuera de A532, C > 3,6 %): contraste. Ni y Cu no informados. La base "
+        "no tiene Nb: el NbC (6-10 % de la masa) queda sin modelar."
+    )
+    return [
+        Case(FORTINI, f"Fortini aleación {1 if alloy is FORTINI_1 else 2} {t} °C {h:g} h",
+             alloy, t, 25.0, "masa", ar, note=note, in_cut=False)
+        for alloy, t, h, _medium, ar in _FORTINI_DATA
+    ]  # fmt: skip
+
+
+def extended_cases() -> list[Case]:
+    """Casos nuevos de fase 1c: los comparables (in_cut) y los de contexto o contraste."""
+    return _nayak_cases() + _gonzalez_cases() + _ortega_cases() + _fortini_cases()
