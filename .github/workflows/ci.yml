@@ -22,5 +22,7 @@ jobs:
         run: curl -fL --create-dirs -o tdb/mc_fe_v2.059.pycalphad.tdb https://raw.githubusercontent.com/pycalphad/pycalphad/develop/examples/databases/mc_fe_v2.059.pycalphad.tdb
       - name: Ruff
         run: ruff check . && ruff format --check .
+      - name: Tipos (solo errores nuevos; los previos están en .basedpyright/baseline.json)
+        run: basedpyright
       - name: Pytest
         run: pytest --cov=tratamientos --cov-report=term-missing

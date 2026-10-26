@@ -22,6 +22,7 @@ def _widgets(at: AppTest) -> list:
     return [*at.sidebar.number_input, *at.sidebar.selectbox, *at.sidebar.checkbox]
 
 
+@pytest.mark.app
 def test_las_tres_pestanas_cargan_sin_excepciones():
     at = AppTest.from_file(APP, default_timeout=180).run()
     assert not at.exception and not at.error
@@ -33,6 +34,7 @@ def test_las_tres_pestanas_cargan_sin_excepciones():
     assert not at.warning  # 2 pulgadas está dentro del rango validado
 
 
+@pytest.mark.app
 def test_los_controles_salen_de_la_misma_definicion_que_la_tabla():
     at = AppTest.from_file(APP, default_timeout=180).run()
     widgets = {w.key: w for w in _widgets(at)}
@@ -72,6 +74,7 @@ def test_no_se_ofrece_un_h_libre_ni_de_manual_y_las_temperaturas_son_fijas():
     assert controles.BY_KEY["medium"].options == ("agua", "aceite")
 
 
+@pytest.mark.app
 def test_fuera_del_rango_validado_se_rotula():
     at = AppTest.from_file(APP, default_timeout=180).run()
     for diameter, warns in ((0.5, True), (0.75, False), (2.77, False), (3.0, True), (5.0, True)):
@@ -80,6 +83,7 @@ def test_fuera_del_rango_validado_se_rotula():
         assert any("Fuera del rango validado" in w.value for w in at.warning) is warns, diameter
 
 
+@pytest.mark.app
 def test_la_comparacion_critica_empieza_apagada_y_muestra_el_espesor():
     at = AppTest.from_file(APP, default_timeout=180).run()
     assert at.sidebar.checkbox[0].value is False
@@ -91,6 +95,7 @@ def test_la_comparacion_critica_empieza_apagada_y_muestra_el_espesor():
     assert any("de espesor" in i.value and "no es dureza" in i.value for i in at.info)
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("extreme", ["min", "max"])
 @pytest.mark.parametrize("compare", [False, True])
 def test_controles_en_los_extremos_no_tumban_la_app(extreme, compare):
@@ -102,6 +107,7 @@ def test_controles_en_los_extremos_no_tumban_la_app(extreme, compare):
     assert not at.exception and not at.error
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("value", [10_000_000, -5, float("inf"), float("nan")])
 def test_el_servidor_rechaza_valores_fuera_de_rango(value):
     # Un cliente puede mandar valores sin pasar por el navegador: Streamlit (versión fijada en
@@ -116,6 +122,7 @@ def test_el_servidor_rechaza_valores_fuera_de_rango(value):
     ]
 
 
+@pytest.mark.app
 def test_un_fallo_del_modelo_se_muestra_sin_traza(monkeypatch):
     import calculo
 

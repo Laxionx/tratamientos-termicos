@@ -83,6 +83,13 @@ curl -L --create-dirs -o tdb/mc_fe_v2.059.pycalphad.tdb https://raw.githubuserco
 
 The `mc_fe_v2.059` database is the MatCalc steel database (TU Wien, E. Povoden-Karadeniz), licensed under [ODbL 1.0](http://opendatacommons.org/licenses/odbl/1.0/). It is not versioned: it is downloaded with the command above.
 
+### When changing code
+
+1. `ruff check . && basedpyright` (~15 s): checks names and types without running anything. basedpyright reports only **new** errors; the 26 earlier ones are in `.basedpyright/baseline.json`.
+2. `pytest` (~4 min) before every commit.
+
+The tests that open the app carry `@pytest.mark.app`, but here `pytest -m "not app"` only saves half the time: the slow part is the pycalphad validations, which belong to the package.
+
 ## Roadmap
 
 | Phase | Content |

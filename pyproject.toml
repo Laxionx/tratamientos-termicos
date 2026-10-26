@@ -13,7 +13,7 @@ authors = [{ name = "Anthony Vera Baldeón" }]
 dependencies = ["numpy", "pycalphad>=0.11"]
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "ruff"]
+dev = ["pytest", "pytest-cov", "basedpyright", "ruff"]
 app = ["scipy", "streamlit==1.65.0", "plotly==7.1.0"]
 
 [tool.setuptools]
@@ -21,6 +21,13 @@ packages = ["tratamientos"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["app: corre la app entera con AppTest (lenta); `-m \"not app\"` las deja fuera"]
+
+[tool.basedpyright]
+include = ["tratamientos", "app"]
+extraPaths = ["app"]  # la app importa sus módulos por nombre, como en Streamlit Cloud
+pythonVersion = "3.10"
+typeCheckingMode = "basic"
 
 [tool.ruff]
 line-length = 100

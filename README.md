@@ -100,6 +100,15 @@ La base `mc_fe_v2.059` es la base de aceros de MatCalc (TU Wien, E. Povoden-Kara
 licencia [ODbL 1.0](http://opendatacommons.org/licenses/odbl/1.0/). No se versiona: se descarga
 con el comando de arriba.
 
+### Al cambiar código
+
+1. `ruff check . && basedpyright` (~15 s): revisa nombres y tipos sin correr nada. basedpyright
+   avisa solo los errores **nuevos**; los 26 previos están en `.basedpyright/baseline.json`.
+2. `pytest` (~4 min) antes de cada commit.
+
+Las pruebas que abren la app llevan `@pytest.mark.app`, pero aquí `pytest -m "not app"` solo
+ahorra la mitad del tiempo: lo lento son las validaciones con pycalphad, que son del paquete.
+
 ## Hoja de ruta
 
 | Fase | Contenido |

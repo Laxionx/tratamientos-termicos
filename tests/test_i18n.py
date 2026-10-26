@@ -118,6 +118,7 @@ def test_los_textos_en_ingles_no_llevan_palabras_en_espanol():
 
 
 # ------------------------------------------------------------------ el idioma y la URL
+@pytest.mark.app
 @pytest.mark.parametrize("value", ["fr", "EN", "es ", "", "en;alert(1)", "<script>", "../en"])
 def test_un_parametro_lang_invalido_es_espanol_sin_error(value):
     at = run(value)
@@ -132,6 +133,7 @@ def test_parse_lang_solo_acepta_es_y_en():
     assert {i18n.parse_lang(v) for v in ("fr", None, 3, ["en"], "EN", " en")} == {"es"}
 
 
+@pytest.mark.app
 def test_lang_en_en_la_url_abre_en_ingles_y_el_selector_cambia_el_idioma():
     en = run("en")
     assert [t.label for t in en.tabs] == ["Guide", "Quench", "Validation"]
@@ -144,12 +146,14 @@ def test_lang_en_en_la_url_abre_en_ingles_y_el_selector_cambia_el_idioma():
     assert es_.tabs[0].label == "Guide" and not es_.exception
 
 
+@pytest.mark.app
 def test_el_valor_de_lang_nunca_llega_al_html_ni_al_svg():
     at = run("en<script>alert(1)</script>")
     blob = json.dumps([m.value for m in at.markdown] + [c.value for c in at.caption])
     assert "alert(1)" not in blob and "<script" not in blob.lower()
 
 
+@pytest.mark.app
 def test_los_datos_y_las_listas_se_conservan_al_cambiar_de_idioma():
     at = run("es", diameter=3.0, medium="aceite")
     at.sidebar.radio[0].set_value("en").run()
@@ -162,6 +166,7 @@ def test_los_datos_y_las_listas_se_conservan_al_cambiar_de_idioma():
 
 
 # ------------------------------------------------------------------ humo de todas las pestañas
+@pytest.mark.app
 @pytest.mark.parametrize("lang", ["es", "en"])
 def test_humo_de_todas_las_pestanas(lang):
     at = run(lang)
@@ -169,6 +174,7 @@ def test_humo_de_todas_las_pestanas(lang):
     assert len(at.tabs) == 3 and len(at.metric) == 5
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("lang", ["es", "en"])
 def test_humo_con_comparacion_critica_y_fuera_de_rango(lang):
     at = run(lang, diameter=4.5, medium="aceite", compare=True, critical=40.0)
@@ -205,6 +211,7 @@ def _figures(at: AppTest, lang: str) -> list:
     return out
 
 
+@pytest.mark.app
 @pytest.mark.parametrize(
     "values",
     [
@@ -313,6 +320,7 @@ def test_los_errores_conocidos_del_modelo_se_traducen():
     assert all(re.compile(p) for p, _ in modelo_en.ERRORS)
 
 
+@pytest.mark.app
 def test_un_error_del_modelo_se_muestra_sin_traza_en_los_dos_idiomas(monkeypatch):
     def fails(params):
         raise ValueError("medio desconocido: 'x'; solo agua, aceite")
