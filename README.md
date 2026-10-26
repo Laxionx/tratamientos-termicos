@@ -76,7 +76,7 @@ Ver [docs/fase3b-revenido.md](docs/fase3b-revenido.md) y `python ejemplos/reveni
 
 ## App Temple de la bola
 
-App Streamlit didáctica: la bola en corte, anillo por anillo y segundo a segundo, con los números del modelo de la fase 2 (el color de cada anillo es la temperatura que calcula `quench_sphere`), y la validación contra las esferas del NBS. No calcula dureza.
+App Streamlit didáctica: la bola en corte, anillo por anillo y segundo a segundo, con los números del modelo de la fase 2 (el color de cada anillo es la temperatura que calcula `quench_sphere`), y la validación contra las esferas del NBS. No calcula dureza. La pestaña Temple trae indicadores, un panel «Estado de la operación» (rango validado, solución numérica contra la serie analítica) y tres experimentos «Prueba esto» con cifras calculadas en vivo.
 
 **[▶ Probar en el navegador](https://tratamientos-termicos-6wqfzanyzyscgjwaexmopu.streamlit.app/)** (Streamlit Community Cloud, sin registro). La app tiene un selector Español / English arriba de la barra lateral; con `?lang=en` abre en inglés.
 

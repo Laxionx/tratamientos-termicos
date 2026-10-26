@@ -61,7 +61,7 @@ See [docs/fase3b-revenido.md](docs/fase3b-revenido.md) (in Spanish) and `python 
 
 ## Ball quenching app
 
-A didactic Streamlit app: the ball in cross-section, ring by ring and second by second, with the numbers of the phase 2 model (the color of each ring is the temperature that `quench_sphere` calculates), and the validation against the NBS spheres. It does not calculate hardness.
+A didactic Streamlit app: the ball in cross-section, ring by ring and second by second, with the numbers of the phase 2 model (the color of each ring is the temperature that `quench_sphere` calculates), and the validation against the NBS spheres. It does not calculate hardness. The Quench tab has indicators, an "Operating state" panel (validated range, numerical solution against the analytical series) and three "Try this" experiments with live-computed figures.
 
 **[▶ Try it in the browser](https://tratamientos-termicos-6wqfzanyzyscgjwaexmopu.streamlit.app/?lang=en)** (Streamlit Community Cloud, no sign-up). The app has an Español / English selector at the top of the sidebar; `?lang=en` opens it in English.
 
