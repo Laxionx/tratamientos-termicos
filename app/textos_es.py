@@ -31,10 +31,10 @@ TEXTS: dict[str, str] = {
         "Fuera del rango validado con el NBS ({lo} a {hi} pulgadas): el resultado es una "
         "extrapolación."
     ),
-    "q.m.center": "Centro baja a 720 °C a los",
-    "q.m.center_rate": "Velocidad del centro a 720 °C",
-    "q.m.surface_rate": "Velocidad de la superficie a 720 °C",
-    "q.m.biot": "Número de Biot (h·R/k)",
+    "q.m.center": "Centro a 720 °C a los",
+    "q.m.center_rate": "Vel. centro a 720 °C",
+    "q.m.surface_rate": "Vel. superficie a 720 °C",
+    "q.m.biot": "Número de Biot",
     "q.alt": "Corte de una bola de acero templada, enfriándose por anillos",
     "q.caption": (
         "Cada anillo toma el color de la temperatura que calcula el modelo a su radio y a ese "
@@ -245,4 +245,90 @@ TEXTS: dict[str, str] = {
     "fixed.range": "fijo",
     "fixed.meaning": "La app no lo deja cambiar: el h calibrado solo vale así.",
     "fixed.source": "Condición del ensayo del NBS.",
+    # ------------------------------------------------------------ indicadores, estado y «Prueba esto»
+    "estado.nivel.ok": "En rango",
+    "estado.nivel.aviso": "Aviso",
+    "estado.nivel.mal": "Problema",
+    "estado.todo_ok": "Operación dentro de rango.",
+    "estado.ver": "Ver los {n} chequeos en rango",
+    "prueba.aplicar": "Aplicar este cambio a los controles",
+    "prueba.restablecer": "Volver al ejemplo",
+    "q.m.center.help": "Segundos que tarda el centro de la bola en bajar a 720 °C.",
+    "q.m.center_rate.help": "Velocidad de enfriamiento del centro al pasar por 720 °C, en °C/s.",
+    "q.m.surface_rate.help": "Velocidad de enfriamiento de la superficie al pasar por 720 °C, en °C/s.",
+    "q.m.biot.help": (
+        "Número de Biot, h·R/k: cuánto cuesta que el calor salga de la superficie al líquido "
+        "frente a lo que cuesta que llegue hasta ella desde adentro. Grande: el centro se atrasa."
+    ),
+    "q.m.h": "h efectivo (W/m²K)",
+    "q.m.h.help": (
+        "Coeficiente de transferencia del medio, calibrado con la esfera de 3/4 de pulgada del "
+        "NBS (docs/fase2-temple.md). Es efectivo y constante: incluye lo que el modelo no tiene."
+    ),
+    "q.m.grossmann": "Severidad H",
+    "q.m.grossmann.help": (
+        "Severidad de temple de Grossmann, H = h/(2k), en 1/pulgada. En agua quieta da 3,2; los "
+        "manuales citan cerca de 1 (docs/fase2-temple.md)."
+    ),
+    "q.h.estado": "Estado de la operación",
+    "q.chk.rango.ok": "Diámetro de {d} pulgadas dentro del rango validado con el NBS ({lo} a {hi}).",
+    "q.chk.serie": (
+        "Solución numérica contra la serie analítica de la esfera: en el centro, a los segundos en "
+        "que baja a 720 °C, difiere {err} % (tolerancia ±{tol} %; Biot {bi}, Fourier {fo})."
+    ),
+    "q.chk.serie.fuera": (
+        "Biot de {bi}: fuera de {lo} a {hi}, que es el rango en que se comparó con la serie "
+        "analítica. No se pudo comprobar."
+    ),
+    "q.chk.integra": (
+        "El integrador (BDF) convergió y el centro baja a 720 °C a los {t} s, el {pct} % del "
+        "tiempo calculado ({tend} s)."
+    ),
+    "q.crit.rango": (
+        "Aviso si el diámetro queda fuera de 0,75 a 2,77 pulgadas, las esferas medidas por el NBS "
+        "(docs/fase2-temple.md, tabla de validación): ahí el resultado es una extrapolación."
+    ),
+    "q.crit.serie": (
+        "Aviso si el modelo se aparta más de ±0,5 % de la serie de Fourier de la esfera con "
+        "convección (Incropera, cap. 5). Tolerancia y rango de Biot, de 0,1 a 50, como en "
+        "docs/fase2-temple.md y tests/test_temple.py."
+    ),
+    "q.crit.integra": (
+        "Definición: si el integrador no converge, o el centro no llega a 720 °C dentro del "
+        "tiempo calculado (tres constantes de tiempo), no hay resultado y se muestra un error."
+    ),
+    "q.h.prueba": "Prueba esto",
+    "q.prueba.intro": (
+        "Experimentos desde el **ejemplo de la barra lateral**; los números los calcula el "
+        "modelo en vivo. El botón pone el cambio en los datos y el panel de arriba lo refleja."
+    ),
+    "q.exp.medio.titulo": "Cambiar el agua por aceite",
+    "q.exp.medio.texto": (
+        "En aceite el calor sale más despacio por la superficie: en la bola de {d0} pulgadas el "
+        "centro baja a 720 °C a los {t1} s en vez de {t0} s, y lo hace a {r1} °C/s en vez de "
+        "{r0}. El Biot baja de {b0} a {b1}, así que la superficie ya no se adelanta tanto al "
+        "centro: va {k1} veces más rápida que el centro, no {k0}."
+    ),
+    "q.exp.tamano.titulo": "Agrandar la bola",
+    "q.exp.tamano.texto": (
+        "Con {d1} pulgadas en vez de {d0}, el calor tiene más camino y hay más acero que "
+        "enfriar: el centro baja a 720 °C a los {t1} s en vez de {t0} s, a {r1} °C/s en vez de "
+        "{r0}, y el Biot sube de {b0} a {b1}. La superficie casi no cambia ({s0} y {s1} °C/s): "
+        "el centro se atrasa más, y la superficie pasa de ser {k0} veces más rápida que el "
+        "centro a {k1}. Sigue dentro del rango validado."
+    ),
+    "q.exp.capa.titulo": "Medir la capa que alcanza la velocidad crítica",
+    "q.exp.capa.texto": (
+        "Con la comparación activada y la velocidad crítica de partida ({c0} °C/s, dato del "
+        "material sin fuente), toda la bola la alcanza: el centro lleva {r0} °C/s. Con {c1} °C/s "
+        "solo la alcanza la capa exterior de {depth} mm, de {radius} mm de radio. Criterio "
+        "simple; no es dureza."
+    ),
+    "v.m.worst": "Mayor desvío",
+    "v.m.worst.help": "Mayor desvío del modelo frente a lo medido: la esfera de {d} pulgadas en {medium}.",
+    "v.m.mean": "Desvío medio",
+    "v.m.mean.help": (
+        "Promedio con signo de las 11 predicciones. Positivo: el modelo enfría más rápido de lo "
+        "medido."
+    ),
 }

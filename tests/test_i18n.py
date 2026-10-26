@@ -171,14 +171,15 @@ def test_los_datos_y_las_listas_se_conservan_al_cambiar_de_idioma():
 def test_humo_de_todas_las_pestanas(lang):
     at = run(lang)
     assert not at.exception and not at.error
-    assert len(at.tabs) == 3 and len(at.metric) == 5
+    assert len(at.tabs) == 3 and len(at.metric) == 9  # 6 del temple y 3 de la validación
 
 
 @pytest.mark.app
 @pytest.mark.parametrize("lang", ["es", "en"])
 def test_humo_con_comparacion_critica_y_fuera_de_rango(lang):
     at = run(lang, diameter=4.5, medium="aceite", compare=True, critical=40.0)
-    assert not at.exception and at.warning  # fuera del rango validado
+    # fuera del rango validado: el aviso vive en el panel «Estado de la operación»
+    assert not at.exception and any(m.value.startswith(":orange-badge[") for m in at.markdown)
     assert any("**" in i.value for i in at.info) or at.info
 
 
@@ -226,7 +227,7 @@ def test_las_cifras_son_identicas_en_los_dos_idiomas(values):
     assert not es_.exception and not en.exception
     a, b = _figures(es_, "es"), _figures(en, "en")
     assert len(a) == len(b) > 20 and a == b
-    assert len(es_.metric) == len(en.metric) == 5
+    assert len(es_.metric) == len(en.metric) == 9
 
 
 # ------------------------------------------------------------------ los gráficos y el esquema

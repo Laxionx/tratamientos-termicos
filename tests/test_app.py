@@ -28,8 +28,8 @@ def test_las_tres_pestanas_cargan_sin_excepciones():
     assert not at.exception and not at.error
     assert [t.label for t in at.tabs] == ["Guía", "Temple", "Validación"]
     values = {m.label: m.value for m in at.metric}
-    assert values["Centro baja a 720 °C a los"] == "12,7 s"
-    assert values["Velocidad del centro a 720 °C"] == "29,7 °C/s"
+    assert values["Centro a 720 °C a los"] == "12,7 s"
+    assert values["Vel. centro a 720 °C"] == "29,7 °C/s"
     assert values["Predicciones dentro de ±15 %"] == "7 de 11"
     assert not at.warning  # 2 pulgadas está dentro del rango validado
 
@@ -80,7 +80,10 @@ def test_fuera_del_rango_validado_se_rotula():
     for diameter, warns in ((0.5, True), (0.75, False), (2.77, False), (3.0, True), (5.0, True)):
         at.sidebar.number_input[0].set_value(diameter).run()
         assert not at.exception
-        assert any("Fuera del rango validado" in w.value for w in at.warning) is warns, diameter
+        # el aviso vive en el panel «Estado de la operación» (una línea con el nivel escrito)
+        panel = [m.value for m in at.markdown if m.value.startswith(":orange-badge[Aviso]")]
+        assert any("Fuera del rango validado" in m for m in panel) is warns, diameter
+        assert not at.warning
 
 
 @pytest.mark.app

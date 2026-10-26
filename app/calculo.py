@@ -6,7 +6,15 @@ from __future__ import annotations
 import functools
 from dataclasses import dataclass
 
-from tratamientos.temple import H_NBS, INCH, POSITIONS, QuenchResult, quench_sphere
+from tratamientos.temple import (
+    H_NBS,
+    INCH,
+    POSITIONS,
+    QuenchResult,
+    grossmann_h,
+    quench_sphere,
+    sphere_analytic,
+)
 from tratamientos.validacion import (
     NBS_RATE,
     NBS_T_INITIAL,
@@ -23,6 +31,8 @@ RING_COUNT = 16  # bandas de radio del corte
 FRAME_COUNT = 40  # fotogramas del reloj, más el del cruce de 720 °C del centro
 SAMPLING_POWER = 2.0  # t_k = t_fin · (k / (N − 1))^p: más densos al principio
 ACCEPTED = NBS_TOLERANCES["velocidad"]  # ±15 % de la validación
+BIOT_COMPROBADO = (0.1, 50.0)  # Bi con que se comparó la solución numérica con la serie analítica
+TOL_ANALITICA = 5e-3  # ±0,5 % en θ = (T - T_medio)/(T_inicial - T_medio)
 NOMINAL_IN = (0.75, 1.00, 1.36, 1.61, 1.88, 2.35, 2.77)  # como los rotula docs/fase2-temple.md
 
 
@@ -78,6 +88,11 @@ class QuenchView:
         return self.h * (self.result.diameter_m / 2) / self.result.steel.k
 
     @property
+    def grossmann(self) -> float:
+        """Severidad de temple de Grossmann H = h/(2k), en 1/pulgada."""
+        return grossmann_h(self.h, self.result.steel)
+
+    @property
     def in_validated_range(self) -> bool:
         return VALIDATED_IN[0] <= self.params.diameter_in <= VALIDATED_IN[1]
 
@@ -128,6 +143,39 @@ def run_quench(p: QuenchParams) -> QuenchView:
     )
     layer = critical_layer(result, p.critical_rate) if p.compare else None
     return QuenchView(p, result, times, times.index(t_center), positions, temps, crossings, layer)
+
+
+@dataclass(frozen=True)
+class AnalyticCheck:
+    """La solución numérica contra la serie analítica de la esfera, en el centro y en el instante
+    en que baja a 720 °C. Solo se calcula con un Biot dentro de lo comprobado (`checked`)."""
+
+    biot: float
+    fourier: float
+    theta_model: float
+    theta_series: float  # nan si no se calculó
+    checked: bool
+
+    @property
+    def error(self) -> float:
+        """Diferencia relativa de θ entre el modelo y la serie (nan si no se calculó)."""
+        return self.theta_model / self.theta_series - 1.0 if self.checked else float("nan")
+
+    @property
+    def within(self) -> bool:
+        return self.checked and abs(self.error) <= TOL_ANALITICA
+
+
+def analytic_check(view: QuenchView) -> AnalyticCheck:
+    """Compara θ del centro, a los segundos en que el modelo lo baja a 720 °C, con la serie de
+    `sphere_analytic` (Incropera, cap. 5)."""
+    res, bi = view.result, view.biot
+    t_center = view.crossings[0].time_s
+    fourier = res.steel.diffusivity * t_center / (res.diameter_m / 2) ** 2
+    theta = (res.temperature(t_center, 0.0) - T_MEDIUM) / (T_INITIAL - T_MEDIUM)
+    if not BIOT_COMPROBADO[0] <= bi <= BIOT_COMPROBADO[1]:
+        return AnalyticCheck(bi, fourier, theta, float("nan"), False)
+    return AnalyticCheck(bi, fourier, theta, sphere_analytic(bi, fourier, 0.0), True)
 
 
 def curve(result: QuenchResult, position: float, points: int = 240) -> tuple[list, list]:

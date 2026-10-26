@@ -18,15 +18,38 @@ sys.path.insert(0, str(ROOT / "app"))
 
 import pandas as pd  # noqa: E402
 from bola_svg import ball_svg  # noqa: E402
-from calculo import ACCEPTED, VALIDATED_IN, QuenchParams, nbs_rows, run_quench  # noqa: E402
-from controles import sidebar_config  # noqa: E402
+from calculo import (  # noqa: E402
+    ACCEPTED,
+    QuenchParams,
+    QuenchView,
+    nbs_rows,
+    run_quench,
+)
+from controles import reset_to_example, sidebar_config  # noqa: E402
 from dibujo import MOTION_CSS, as_images, es  # noqa: E402
+from estado import panel, pruebas  # noqa: E402
 from graficos import temperature_figure, validation_figure  # noqa: E402
 from guia import ficha, guide_tab, markdown_table  # noqa: E402
 from i18n import activate, current, opt, sidebar_selector, t, tm, tr_error  # noqa: E402
+from temple_estado import filas_estado, pruebas_temple  # noqa: E402
 
 activate()  # idioma de esta corrida: la sesión o `?lang=` (solo es o en)
 st.set_page_config(page_title=t("page.title"), layout="wide")
+
+
+def _indicadores(view: QuenchView) -> None:
+    """Seis indicadores en dos filas de tres: rótulos cortos (el nombre completo va en la ayuda)."""
+    center, _, surface = view.crossings
+    fila1, fila2 = st.columns(3), st.columns(3)
+    fila1[0].metric(t("q.m.center"), f"{es(center.time_s, 1)} s", help=t("q.m.center.help"))
+    fila1[1].metric(t("q.m.center_rate"), f"{es(center.rate, 1)} °C/s",
+                    help=t("q.m.center_rate.help"))  # fmt: skip
+    fila1[2].metric(t("q.m.surface_rate"), f"{es(surface.rate, 0)} °C/s",
+                    help=t("q.m.surface_rate.help"))  # fmt: skip
+    fila2[0].metric(t("q.m.biot"), es(view.biot, 1), help=t("q.m.biot.help"))
+    fila2[1].metric(t("q.m.h"), es(view.h, 0), help=t("q.m.h.help"))
+    fila2[2].metric(t("q.m.grossmann"), f"{es(view.grossmann, 1)} in⁻¹",
+                    help=t("q.m.grossmann.help"))  # fmt: skip
 
 
 def quench_tab(params: QuenchParams, animate: bool) -> None:
@@ -36,15 +59,9 @@ def quench_tab(params: QuenchParams, animate: bool) -> None:
     except (ValueError, RuntimeError, ArithmeticError) as exc:
         st.error(t("q.err", exc=tr_error(str(exc))))
         return
-    if not view.in_validated_range:
-        lo, hi = VALIDATED_IN
-        st.warning(t("q.range", lo=es(lo, 2), hi=es(hi, 2)))
-    center, _, surface = view.crossings
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric(t("q.m.center"), f"{es(center.time_s, 1)} s")
-    c2.metric(t("q.m.center_rate"), f"{es(center.rate, 1)} °C/s")
-    c3.metric(t("q.m.surface_rate"), f"{es(surface.rate, 0)} °C/s")
-    c4.metric(t("q.m.biot"), es(view.biot, 1))
+    _indicadores(view)
+    st.subheader(t("q.h.estado"))
+    panel(filas_estado(view))
     st.html(as_images(ball_svg(view, paused=not animate), ball_svg(view, paused=True),
                       t("q.alt")))  # fmt: skip
     st.caption(t("q.caption"))
@@ -63,12 +80,19 @@ def quench_tab(params: QuenchParams, animate: bool) -> None:
         t("q.col.rate"): [round(c.rate, 1) for c in view.crossings],
     })  # fmt: skip
     st.dataframe(table, hide_index=True)
+    st.subheader(t("q.h.prueba"))
+    st.markdown(t("q.prueba.intro"))
+    pruebas(pruebas_temple(), "q_", reset_to_example)
+
+
+def _deviation_text(deviation: float) -> str:
+    return f"{100 * deviation:+.1f} %".replace(".", "," if current() == "es" else ".")
 
 
 def _deviation(row) -> str:
     if row.calibration:
         return t("v.calibration")
-    return f"{100 * row.deviation:+.1f} %".replace(".", "," if current() == "es" else ".")
+    return _deviation_text(row.deviation)
 
 
 def validation_tab() -> None:
@@ -76,8 +100,14 @@ def validation_tab() -> None:
     rows = nbs_rows()
     predictions = [r for r in rows if not r.calibration]
     inside = sum(r.inside for r in predictions)
-    st.metric(t("v.metric", pct=f"{100 * ACCEPTED:.0f}"),
+    worst = max(predictions, key=lambda r: abs(r.deviation))
+    mean = sum(r.deviation for r in predictions) / len(predictions)
+    c1, c2, c3 = st.columns(3)
+    c1.metric(t("v.metric", pct=f"{100 * ACCEPTED:.0f}"),
               t("v.metric.value", n=inside, m=len(predictions)))  # fmt: skip
+    where = t("v.m.worst.help", d=es(worst.nominal_in, 2), medium=opt(worst.medium))
+    c2.metric(t("v.m.worst"), _deviation(worst), help=where)
+    c3.metric(t("v.m.mean"), _deviation_text(mean), help=t("v.m.mean.help"))
     st.plotly_chart(validation_figure(rows), width="stretch")
     table = pd.DataFrame({
         t("v.col.sphere"): [es(r.nominal_in, 2) for r in rows],
