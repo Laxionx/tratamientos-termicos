@@ -103,6 +103,8 @@ def _ask(d: Dato) -> float | bool | str:
         labels = [opt(o) for o in d.options]  # el valor del modelo (en español) se rotula aquí
         chosen = sb.selectbox(label, labels, labels.index(opt(str(d.default))), key=key,
                               help=d.help)  # fmt: skip
+        if chosen is None:  # con un índice fijo no ocurre; los tipos de Streamlit 1.66 lo admiten
+            return d.default
         return d.options[labels.index(chosen)]
     if d.widget == "check":
         return sb.checkbox(label, value=bool(d.default), key=key, help=d.help)

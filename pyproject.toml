@@ -14,7 +14,7 @@ dependencies = ["numpy", "pycalphad>=0.11"]
 
 [project.optional-dependencies]
 dev = ["pytest", "pytest-cov", "basedpyright", "ruff"]
-app = ["scipy", "streamlit==1.65.0", "plotly==7.1.0"]
+app = ["scipy", "streamlit==1.66.1", "pillow==13.0.0", "plotly==7.1.0"]
 
 [tool.setuptools]
 packages = ["tratamientos"]
