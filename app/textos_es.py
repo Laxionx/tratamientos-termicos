@@ -251,6 +251,7 @@ TEXTS: dict[str, str] = {
     "estado.nivel.mal": "Problema",
     "estado.todo_ok": "Operación dentro de rango.",
     "estado.ver": "Ver los {n} chequeos en rango",
+    "estado.ver1": "Ver el chequeo en rango",
     "prueba.aplicar": "Aplicar este cambio a los controles",
     "prueba.restablecer": "Volver al ejemplo",
     "q.m.center.help": "Segundos que tarda el centro de la bola en bajar a 720 °C.",
